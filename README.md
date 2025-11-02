@@ -1,2 +1,15 @@
 # Optical_Detectors_Assignment
-This repository is for the second assignment in the Space Detector Laboratory
+The python script found in this repo can be used to produce a star catalogue and H-R Diagram. These will be produced based on the fits images found in DATA. 
+
+## Using the Script
+The script takes no arguments, so ~python hst.py~ should return the results. The runtime for the script should be in the region of 1 minute.
+
+## Processes
+
+$1.$ First, the spurious cosmic rays are removed from the images by median stacking them for each filter. 
+
+$2.$ The background level median and standard deviation of the stacked image is then determined in order to perform thresholding and find a list of star candidates.
+
+$3.$ The candidates are then put through a star-checking process where their flux, ellipticity and width are checked. A gaussian is fitted to each candidate in order to determine their width.
+
+
