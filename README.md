@@ -18,6 +18,10 @@ $4.$ The successful candidates then have their magnitudes calculated in both fil
 
 $5.$ These magnitudes are used to create a star catalogue as well as a Hertzsprung-Russell Diagram.
 
+Addition:
+
+$6.$ The main function now also returns a histogram, displaying the most common FWHM found when gaussian fitting. The results suggest that most stars have a FWHM of around 1.75, which seems logically reasonable.
+
 
 
 
