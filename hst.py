@@ -541,7 +541,7 @@ def star_catalogue():
 
 def main():
     # The catalogue of processed stars is loaded in.
-    catalogue, gauss_g = star_catalogue()
+    catalogue, gauss = star_catalogue()
 
     # Round numeric columns for readability.
     numeric_cols = ["x", "y", "Aperture Radius", "G Mag (F555W)", "B Mag (F336W)", "G-B Mag"]
@@ -570,6 +570,7 @@ def main():
     plt.xlabel("FWHM (pixels)")
     plt.ylabel("Number of Stars")
     plt.title("Histogram of Star FWHM (F555W)")
+    plt.grid(alpha=0.4)
     plt.show()
 
 
