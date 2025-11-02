@@ -2,7 +2,9 @@
 The python script found in this repo can be used to produce a star catalogue and H-R Diagram. These will be produced based on the fits images found in DATA. 
 
 ## Using the Script
-The script takes no arguments, so 'python hst.py' should return the results. The runtime for the script should be in the region of 1 minute.
+Ensure that the script is in the same directory as the DATA directory, which contains within it the sub-directories for each filter.
+
+The script takes no arguments, so 'python hst.py' should return the results when run in the command line. The runtime for the script should be in the region of 1 minute.
 
 ## Processes
 
