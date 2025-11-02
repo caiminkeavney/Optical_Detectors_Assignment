@@ -388,7 +388,7 @@ def star_checker(x, y, image, radius = 3, annulus_inner=8, annulus_outer=14):
     peak_flux = star_flux.max()
     # Check if the peak is significantly above nearby background.
     if peak_flux < 2.5 * bg_std:
-        return False, radius, bg_med
+        return False, radius, bg_med, None
 
     # Candidate is now fitted with a 2-d Gaussian.
     try:
@@ -407,8 +407,9 @@ def star_checker(x, y, image, radius = 3, annulus_inner=8, annulus_outer=14):
     # The Gaussian fits are the most time-intensive part of the script.
     except RuntimeError:
         test = False
+        popt = None
 
-    return test, radius, bg_med
+    return test, radius, bg_med, popt
 
 
 def flux_to_magnitude(value, zeropoint=0):
@@ -468,21 +469,22 @@ def verified_stars(coords, stacked_image, zeropoint):
     verified_stars (list): Coordinates of accepted stars
     """
     verified_stars = []
-    catal_rows = []
-
+    gaussian_params = []
 
     _, bg_median, bg_std = sigma_clip(stacked_image)
     median_flux = np.median(stacked_image[stacked_image > bg_median + 3 * bg_std])
     median_flux = max(median_flux, 1e-10)
 
     for i, (y, x) in enumerate(coords):
-        is_star, rad, local_bg = star_checker(
+        is_star, rad, local_bg, popt = star_checker(
             x, y, stacked_image
         )
         if is_star:
             verified_stars.append((y, x))
+            if popt is not None:
+                gaussian_params.append((popt[3], popt[4]))
 
-    return verified_stars
+    return verified_stars, gaussian_params
 
 def star_catalogue():
         """
@@ -493,17 +495,19 @@ def star_catalogue():
         """
         # Green filter candidate stars are found and tested.
         stacked_g, g_stars, n_stars_g, threshold_g, g_zeropoint = star_finder("F555W", 5)
-        verified_g = verified_stars(g_stars, stacked_g, g_zeropoint)
+        verified_g, gaussian_g = verified_stars(g_stars, stacked_g, g_zeropoint)
 
         # Blue filter candidate stars are found and tested.
         stacked_b, b_stars, n_stars_b, threshold_b, b_zeropoint = star_finder("F336W",5)
-        verified_b = verified_stars(b_stars, stacked_b, b_zeropoint)
+        verified_b, gaussian_b = verified_stars(b_stars, stacked_b, b_zeropoint)
 
         # Compute G magnitudes, coords and radii
         g_mags, g_coords, g_radii = get_magnitudes(verified_g, stacked_g,  g_zeropoint , aperture_radius=5)
 
         # Compute B coordinates only, do not care about B radii
         b_mags, b_coords, _ = get_magnitudes(verified_b, stacked_b, b_zeropoint, aperture_radius=5)
+
+
 
         # List of blue coords made to compare green coords with.
         tree = cKDTree(b_coords)
@@ -531,13 +535,13 @@ def star_catalogue():
         # The catalogue is created using pandas.
         catalogue_df = pd.DataFrame(matched_catalogue) 
 
-        return catalogue_df
+        return catalogue_df, gaussian_g
 
 
 
 def main():
     # The catalogue of processed stars is loaded in.
-    catalogue = star_catalogue()
+    catalogue, gauss_g = star_catalogue()
 
     # Round numeric columns for readability.
     numeric_cols = ["x", "y", "Aperture Radius", "G Mag (F555W)", "B Mag (F336W)", "G-B Mag"]
@@ -556,6 +560,19 @@ def main():
     plt.ylabel("G (mag)")
     plt.tight_layout()
     plt.show()
+
+    # Printing FWHM histogram
+    sigma_eff = [((x**2 + y**2)/2)**0.5 for x, y in gauss]
+
+    fwhm_eff = [2.355 * s for s in sigma_eff]
+
+    plt.hist(fwhm_eff, bins=60, color='green', edgecolor='k')
+    plt.xlabel("FWHM (pixels)")
+    plt.ylabel("Number of Stars")
+    plt.title("Histogram of Star FWHM (F555W)")
+    plt.show()
+
+
 
 
 if __name__ == "__main__":
