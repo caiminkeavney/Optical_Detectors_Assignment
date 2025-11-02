@@ -4,7 +4,7 @@ The python script found in this repo can be used to produce a star catalogue and
 ## Using the Script
 Ensure that the script is in the same directory as the DATA directory, which contains within it the sub-directories for each filter.
 
-The script takes no arguments, so 'python hst.py' should return the results when run in the command line. Ignore warning regarding covariance fitting. The runtime for the script should be in the region of 1 minute.
+The script takes no arguments, so 'python hst.py' should return the results when run in the command line. Ignore warning regarding covariance fitting. The runtime for the script should be less than 1 minute.
 
 ## Processes
 
